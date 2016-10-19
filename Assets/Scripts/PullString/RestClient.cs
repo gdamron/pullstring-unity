@@ -9,12 +9,6 @@
 // See the LICENSE file, or https://opensource.org/licenses/MIT.
 //
 
-#if !UNITY_5_4_OR_NEWER
-using UnityEngine.Experimental.Networking;
-#else
-using UnityEngine.Networking;
-#endif
-
 using System.Collections.Generic;
 using MiniJSON;
 
@@ -24,35 +18,31 @@ namespace PullString
     {
         private string BaseUrl { get; set; }
 
-        public RestClient (string baseUrl)
+        public RestClient(string baseUrl)
         {
             BaseUrl = baseUrl;
         }
 
         // All requests to the PullString are Web API are POST requests
-        public UnityWebRequest Post (string endpoint, Dictionary<string, string> parameters, Dictionary<string, string> headers, byte[] body)
+        public WebRequest Post(string endpoint, Dictionary<string, string> parameters, Dictionary<string, string> headers, byte[] body)
         {
-            var url = getUrl (endpoint, parameters);
-            var request = new UnityWebRequest (url);
-            foreach (var header in headers) {
-                request.SetRequestHeader (header.Key, header.Value);
-            }
-
-            request.method = UnityWebRequest.kHttpVerbPOST;
-            request.uploadHandler = new UploadHandlerRaw (body);
-            request.downloadHandler = new DownloadHandlerBuffer ();
+            var url = getUrl(endpoint, parameters);
+            var request = new WebRequest(url, headers, body);
 
             return request;
         }
 
         // Parse web request and create a Response object
-        public Response ProcessRequest (UnityWebRequest request)
+        public Response ProcessRequest(WebRequest request)
         {
             Response response = null;
 
-            if (request.isError) {
-                response = new Response () {
-                    Status = new Status () {
+            if (request.isError)
+            {
+                response = new Response()
+                {
+                    Status = new Status()
+                    {
                         Success = false,
                         StatusCode = request.responseCode,
                         ErrorMessage = request.error
@@ -62,31 +52,33 @@ namespace PullString
                 return response;
             }
 
-            var responseText = request.downloadHandler.text;
-            var endpoint = request.GetResponseHeader ("Location");
+            var responseText = request.responseText;
+            var endpoint = request.GetResponseHeader("Location");
 
-            var dict = Json.Deserialize (responseText) as Dictionary<string, object>;
-            dict.Add (Keys.EndpointHeader, endpoint);
-            response = new Response (dict);
+            var dict = Json.Deserialize(responseText) as Dictionary<string, object>;
+            dict.Add(Keys.EndpointHeader, endpoint);
+            response = new Response(dict);
 
             return response;
         }
 
         // Convert dictionary of parameters into a query string
-        private string getUrl (string endpoint, Dictionary<string, string> parameters)
+        private string getUrl(string endpoint, Dictionary<string, string> parameters)
         {
             var url = BaseUrl;
-            if (!url.EndsWith ("/") && !endpoint.StartsWith ("/")) {
+            if (!url.EndsWith("/") && !endpoint.StartsWith("/"))
+            {
                 url += "/";
             }
 
             url += endpoint + "?";
-            var query = new List<string> ();
-            foreach (var kv in parameters) {
-                query.Add (kv.Key + "=" + kv.Value);
+            var query = new List<string>();
+            foreach (var kv in parameters)
+            {
+                query.Add(kv.Key + "=" + kv.Value);
             }
 
-            url += string.Join ("&", query.ToArray ());
+            url += string.Join("&", query.ToArray());
 
             return url;
         }
