@@ -2,7 +2,7 @@ SHELL:=/bin/bash
 ifeq ($(OS), Windows_NT)
 	UNITY_PATH = "C:\Program Files\Unity\Editor\Unity.exe"
 else
-	UNITY_PATH = /Applications/Unity_5.4.1/Unity.app/Contents/MacOS/Unity
+	UNITY_PATH = /Applications/Unity/Unity.app/Contents/MacOS/Unity
 endif
 
 WORKING_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
