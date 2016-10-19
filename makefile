@@ -27,10 +27,12 @@ test:
 		\
 		grep '<test-case' UnitTests.xml | sed -e 's,.*<test-case\([^<]*\)>.*,\1,g'; \
 		rm UnitTests.xml; \
+		echo ""; \
 	fi;
 
 build:
-	@$(UNITY_PATH) -batchmode -quit \
+	@echo "Exporting pullstring.unitypackage"; \
+	$(UNITY_PATH) -batchmode -quit \
 	-projectPath $(WORKING_DIR) \
-	-exportPackage Assets/Scripts/PullString pullstring.unitypackage \
-	
+	-exportPackage Assets/Scripts/PullString pullstring.unitypackage; \
+	echo "done";
