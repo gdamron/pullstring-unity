@@ -300,10 +300,10 @@ namespace PullString
         }
 
         /// <summary>
-        /// Initiate a progressive (chunked) streaming of audio data, where supported.
+        /// Initiate a progressive streaming of audio data.
         ///
-        /// Note, chunked streaming is not currently implemented, so this will batch up all audio and send it all at
-        /// once when EndAudio() is called.
+        /// Note: True streaming is not currently implemented, so this will batch up all audio and send it all at
+        /// once, with chunking managed by the system, when EndAudio() is called.
         /// </summary>
         /// <param name="request">[Optional] A request object with at least apiKey and conversationId set.</param>
         public void StartAudio(Request request = null)
