@@ -72,13 +72,12 @@ namespace PullString
     /// </summary>
     public class Label : Entity
     {
-        /// <returns>EEntityType.Label</returns>
+        /// <summary>EEntityType.Label</summary>
         override public string Type { get { return EEntityType.Label; } }
 
         /// <summary>
         /// Safely cast Value object as string.
         /// </summary>
-        /// <returns>Value as a string or string.Empty</returns>
         public string StringValue
         {
             get
@@ -103,13 +102,12 @@ namespace PullString
     /// </summary>
     public class Counter : Entity
     {
-        /// <returns>EEntityType.Counter</returns>
+        /// <summary>EEntityType.Counter</summary>
         override public string Type { get { return EEntityType.Counter; } }
 
         /// <summary>
         /// Safely cast Value as a double
         /// </summary>
-        /// <returns>Value as a double or -1</returns>
         public double DoubleValue
         {
             get
@@ -134,13 +132,12 @@ namespace PullString
     /// </summary>
     public class Flag : Entity
     {
-        /// <returns>EEntityType.Flag</returns>
+        /// <summary>EEntityType.Flag</summary>
         override public string Type { get { return EEntityType.Flag; } }
 
         /// <summary>
         /// Safely cast Value as a bool.
         /// </summary>
-        /// <returns>Value as a bool or false</returns>
         public bool BoolValue
         {
             get
@@ -165,13 +162,12 @@ namespace PullString
     /// </summary>
     public class List : Entity
     {
-        /// <returns>EEntityType.List</returns>
+        /// <summary>EEntityType.List</summary>
         override public string Type { get { return EEntityType.List; } }
 
         /// <summary>
         /// Safely cast Value as an object[]
         /// </summary>
-        /// <returns></returns>
         public object[] ArrayValue
         {
             get

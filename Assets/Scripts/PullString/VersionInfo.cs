@@ -21,8 +21,14 @@ namespace PullString
         StreamingAsr
     }
 
+    /// <summary>
+    /// Encapsulates version information for PullString's Web API.
+    /// </summary>
     public class VersionInfo
     {
+        /// <summary>
+        /// The public-facing endpoint of the PullString Web API.
+        /// </summary>
         public const string ApiBaseUrl = "https://conversation.pullstring.ai/v1/";
 
         /// <summary>
