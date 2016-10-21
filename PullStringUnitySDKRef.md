@@ -19,10 +19,10 @@
 `class `[``List``](#class_pull_string_1_1_list)    | Subclass of [Entity](#class_pull_string_1_1_entity) to describe a single [List](#class_pull_string_1_1_list).
 `class `[``Output``](#class_pull_string_1_1_output)    | Base class for outputs that are of type dialog or behavior.
 `class `[``Phoneme``](#class_pull_string_1_1_phoneme)    | Describe a single phoneme for an audio response, e.g., to drive automatic lip sync.
-`class `[``Request``](#class_pull_string_1_1_request)    | Describe the parameters for a request to the [PullString](#namespace_pull_string) Web API.
+`class `[``Request``](#class-request)    | Describe the parameters for a request to the [PullString](#namespace_pull_string) Web API.
 `class `[``Response``](#class_pull_string_1_1_response)    | Presents the output of a request to the [PullString](#namespace_pull_string) Web API.
 `class `[``Status``](#class_pull_string_1_1_status)    | Describe the status and any errors from a Web API response.
-`class `[``VersionInfo``](#class_pull_string_1_1_version_info)    | Encapsulates version information for [PullString](#namespace_pull_string)'s Web API.
+`class `[``VersionInfo``](#class-versioninfo)    | Encapsulates version information for [PullString](#namespace_pull_string)'s Web API.
 
 # class Conversation 
 [//]: # (class_pull_string_1_1_conversation)
