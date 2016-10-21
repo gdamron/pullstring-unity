@@ -20,9 +20,9 @@
 `class `[``Output``](#class_pull_string_1_1_output)    | Base class for outputs that are of type dialog or behavior.
 `class `[``Phoneme``](#class_pull_string_1_1_phoneme)    | Describe a single phoneme for an audio response, e.g., to drive automatic lip sync.
 `class `[``Request``](#class_pull_string_1_1_request)    | Describe the parameters for a request to the [PullString](#namespace_pull_string) Web API.
-`class `[``Response``](#class_pull_string_1_1_response)    | 
+`class `[``Response``](#class_pull_string_1_1_response)    | Presents the output of a request to the [PullString](#namespace_pull_string) Web API.
 `class `[``Status``](#class_pull_string_1_1_status)    | Describe the status and any errors from a Web API response.
-`class `[``VersionInfo``](#class_pull_string_1_1_version_info)    | 
+`class `[``VersionInfo``](#class_pull_string_1_1_version_info)    | Encapsulates version information for [PullString](#namespace_pull_string)'s Web API.
 
 # class Conversation 
 [//]: # (class_pull_string_1_1_conversation)
@@ -73,7 +73,7 @@ conversation.Begin(MY_PROJECT, request);
 `public void GetEntities(string [] names,`[`Request`](#class_pull_string_1_1_request)` request)` | [Request](#class_pull_string_1_1_request) the values of the specified entities (i.e.: labels, counters, flags, and lists) from the Web API.
 `public void SetEntities(`[`Entity`](#class_pull_string_1_1_entity)` [] entities,`[`Request`](#class_pull_string_1_1_request)` request)` | Change the value of the specified entities (i.e.: labels, counters, flags, and lists) via the Web API.
 `public void SendAudio(AudioClip clip,`[`Request`](#class_pull_string_1_1_request)` request)` | Send an entire audio sample of the user speaking to the Web API. Audio must be, mono 16-bit linear PCM at a sample rate of 16000 samples per second.
-`public void StartAudio(`[`Request`](#class_pull_string_1_1_request)` request)` | Initiate a progressive streaming of audio data.
+`public void StartAudio(`[`Request`](#class_pull_string_1_1_request)` request)` | Initiate a progressive (chunked) streaming of audio data, where supported.
 `public void AddAudio(float [] audio)` | Add a chunk of raw audio samples. You must call [StartAudio()](#class_pull_string_1_1_conversation_1acc0d905c4c8d89f6b3da72f73a7bb29b) first. The format of the audio must be mono linear PCM audio data at a sample rate of 16000 samples per second.
 `public void EndAudio()` | Signal that all audio has been provided via [AddAudio()](#class_pull_string_1_1_conversation_1a9776d0733f135dcf4cc7e54192e62e4f) calls. This will complete the audio request and return the Web API response via the OnResponseReceived event.
 
@@ -230,9 +230,9 @@ Send an entire audio sample of the user speaking to the Web API. Audio must be, 
 #### `public void StartAudio(`[`Request`](#class_pull_string_1_1_request)` request)` 
 [//]: # (class_pull_string_1_1_conversation_1acc0d905c4c8d89f6b3da72f73a7bb29b)
 
-Initiate a progressive streaming of audio data.
+Initiate a progressive (chunked) streaming of audio data, where supported.
 
-Note: True streaming is not currently implemented, so this will batch up all audio and send it all at once, with chunking managed by the system, when [EndAudio()](#class_pull_string_1_1_conversation_1af96afb8a51c9a6e8021ed7bbd8afe0d3) is called. 
+Note, chunked streaming is not currently implemented, so this will batch up all audio and send it all at once when [EndAudio()](#class_pull_string_1_1_conversation_1af96afb8a51c9a6e8021ed7bbd8afe0d3) is called. 
 
 
 #### Parameters
@@ -408,7 +408,7 @@ The asset build type to request for Web API requests.
 [//]: # (class_pull_string_1_1_response)
 
 
-
+Presents the output of a request to the [PullString](#namespace_pull_string) Web API.
 
 
 
@@ -1177,7 +1177,7 @@ Describe the status and any errors from a Web API response.
 [//]: # (class_pull_string_1_1_version_info)
 
 
-
+Encapsulates version information for [PullString](#namespace_pull_string)'s Web API.
 
 
 
@@ -1185,14 +1185,14 @@ Describe the status and any errors from a Web API response.
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public const string ApiBaseUrl` | 
+`public const string ApiBaseUrl` | The public-facing endpoint of the [PullString](#namespace_pull_string) Web API.
 
 ### Members
 
 #### `public const string ApiBaseUrl` 
 [//]: # (class_pull_string_1_1_version_info_1a1a9df55f353b05fca5229fd8d04d9d61)
 
-
+The public-facing endpoint of the [PullString](#namespace_pull_string) Web API.
 
 
 
