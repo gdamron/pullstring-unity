@@ -24,8 +24,7 @@
 `class `[``Status``](#class_pull_string_1_1_status)    | Describe the status and any errors from a Web API response.
 `class `[``VersionInfo``](#class_pull_string_1_1_version_info)    | Encapsulates version information for [PullString](#namespace_pull_string)'s Web API.
 
-# class Conversation
-[//]: # (<a name="class_pull_string_1_1_conversation></a>)
+# class Conversation <h3 id="class_pull_string_1_1_conversation"></h3>
 
 ```
 class Conversation
