@@ -49,7 +49,7 @@ namespace PullString
     /// </summary>
     public class DialogOutput : Output
     {
-        /// <returns>EOutputType.Dialog</returns>
+        /// <summary>EOutputType.Dialog</summary>
         override public string Type { get { return EOutputType.Dialog; } }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace PullString
     /// </summary>
     public class BehaviorOutput : Output
     {
-        /// <returns>EOutputType.Behavior</returns>
+        /// <summary>EOutputType.Behavior</summary>
         override public string Type { get { return EOutputType.Behavior; } }
 
         /// <summary>

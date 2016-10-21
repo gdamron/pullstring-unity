@@ -14,6 +14,9 @@ using System.Collections.Generic;
 
 namespace PullString
 {
+    /// <summary>
+    /// Presents the output of a request to the PullString Web API.
+    /// </summary>
     public class Response
     {
         /// <summary>

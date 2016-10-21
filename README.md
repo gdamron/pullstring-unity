@@ -37,17 +37,17 @@ conversation.Begin(MY_PROJECT_ID, request);
 
 // > Do you want to play Rock, Paper, Scissors?
 ```
-Open the *Example* scene in `Assets/Scenes` for another example demonstrating how to use the SDK to hold a conversation. This scene once again connects to the **Rock, Paper, Scissors** bot, but it shows how to use both text and speech input.
+Open the **Example** scene in `Assets/Scenes` for another example demonstrating how to use the SDK to hold a conversation. This scene once again connects to the **Rock, Paper, Scissors** bot, but it shows how to use both text and speech input.
 
 *Note that to run the example on iOS, you'll need to add the `NSMicrophoneUsageDescription` key to the `Info.plist` and a description of how the mic will be used.*
 
 ## Importing
 
-To use the SDK in your own project, either copy the contents of `Assets/Scripts/PullString` into the project or right-click the directory within the Example scene to export a Unity package.
+To use the SDK in your own project, run `make build`. Additionaly, you can either right-click the directory within the Example scene to export a Unity package or simply copy `Assets/Scripts/PullString` into your `Scripts` directory.
 
 ## Documentation
 
-Documentation for this SDK can be found in the `docs` directory. In addition, the PullString Web API specification can be found at:
+Documentation for this SDK can be found in [PullStringUnitySDKRef.md](https://github.com/pullstring/pullstring-unity/blob/master/PullStringUnitySDKRef.md). In addition, the PullString Web API specification can be found at:
 
 > http://docs.pullstring.com/docs/api
 
@@ -55,6 +55,8 @@ For more information about the PullString Platform, refer to:
 
 > http://pullstring.com
 
-## Testing
+## Unit Tests
 
 The SDK's unit tests can be found in the UnitTest scene. In order to open the scene and run the tests, be sure to import the [Unity Test Tools](https://www.assetstore.unity3d.com/en/#!/content/13802). Once, imported, open the Integration Test Runner under `Unity Test Tools > Integration Test Runner` and click Run All.
+
+They can also be executed from the command line by running `make test`.
