@@ -85,6 +85,11 @@ namespace PullString
                             ErrorMessage = webResponse.StatusDescription
                         }
                     };
+
+                    if (callback != null)
+                    {
+                        callback(psResponse);
+                    }
                 }
             }, request);
         }
