@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using PullString;
 
 [RequireComponent(typeof(AudioSource))]
@@ -8,11 +7,8 @@ public class Main : MonoBehaviour
 {
     private const string API_KEY = "9fd2a189-3d57-4c02-8a55-5f0159bff2cf";
     private const string PROJECT = "e50b56df-95b7-4fa1-9061-83a7a9bea372";
-    private Conversation conversation;
 
-    // Audio recording management
-    private int audioOffset = 0;
-    private AudioSource audioSource;
+    private PullStringClient pullstring;
     private bool recording = false;
 
     // GUI management
@@ -21,12 +17,6 @@ public class Main : MonoBehaviour
     bool linesAdded = false;
     private List<string> lines = new List<string>();
 
-    // The Web API expects audio as 16-bit mono at 16000 samples per second
-    private const int SAMPLE_RATE = 16000;
-    // The duration of the AudioClip used to store audio input. It will loop over
-    // itself if time runs out.
-    private const int CLIP_DUR = 5;
-
     // GUI Layout constants
     private const int FONT_SIZE = 36;
     private const int STATUS_BAR = 40;
@@ -34,43 +24,39 @@ public class Main : MonoBehaviour
     private const float INPUT_MARGIN = INPUT_HEIGHT + 12;
     private const int BUTTON_WIDTH = 128;
 
+    void Awake()
+    {
+        var conversation = gameObject.AddComponent<Conversation>();
+        var audioSource = GetComponent<AudioSource>();
+        pullstring = new PullStringClient()
+        {
+            Conversation = conversation,
+            AudioSource = audioSource
+        };
+    }
+
     void Start()
     {
-        // prepare request and start conversation immediately
-        conversation = gameObject.AddComponent<Conversation>();
-        conversation.OnResponseReceived += OnResponseReceived;
+        pullstring.OnAsrReceived += OnAsrReceived;
+        pullstring.OnDialogReceived += OnDialogReceived;
+        pullstring.OnBehaviorReceived += OnBehaviorReceived;
 
-        var request = new Request()
-        {
-            ApiKey = API_KEY
-        };
+        pullstring.ApiKey = API_KEY;
+        pullstring.Start(PROJECT);
+    }
 
-        conversation.Begin(PROJECT, request);
+    void Stop()
+    {
+        pullstring.OnAsrReceived -= OnAsrReceived;
+        pullstring.OnDialogReceived -= OnDialogReceived;
+        pullstring.OnBehaviorReceived -= OnBehaviorReceived;
 
-        // since we'll be processing audio in real time, mute the
-        // audio source.
-        audioSource = GetComponent<AudioSource>();
-        audioSource.mute = true;
+        pullstring.Stop();
     }
 
     void Update()
     {
-        if (Microphone.IsRecording(null))
-        {
-            // Get latest audio samples and pass them to the SDK
-            var count = Microphone.GetPosition(null) - audioOffset;
-            if (count < 0)
-            {
-                count = (int)(audioSource.clip.length * audioSource.clip.frequency) - audioOffset;
-            }
-
-            if (count == 0) return;
-
-            var samples = new float[count];
-            audioSource.clip.GetData(samples, audioOffset);
-            conversation.AddAudio(samples);
-            audioOffset = Microphone.GetPosition(null);
-        }
+        pullstring.Update();
     }
 
     void OnGUI()
@@ -116,18 +102,7 @@ public class Main : MonoBehaviour
         if (GUILayout.Button(recording ? "stop" : "record", GUILayout.Width(BUTTON_WIDTH)))
         {
             recording = !recording;
-            if (recording)
-            {
-                audioSource.clip = Microphone.Start(null, true, CLIP_DUR, SAMPLE_RATE);
-                audioSource.Play();
-                conversation.StartAudio();
-            }
-            else
-            {
-                audioSource.Stop();
-                Microphone.End(null);
-                conversation.EndAudio();
-            }
+            pullstring.ToggleRecording(recording);
         }
 
         GUILayout.EndHorizontal();
@@ -146,34 +121,35 @@ public class Main : MonoBehaviour
         {
             return;
         }
-        conversation.SendText(userInput);
+        pullstring.SendText(userInput);
         lines.Add("You: " + userInput);
         linesAdded = true;
         userInput = string.Empty;
     }
 
-    void OnResponseReceived(Response response)
+    void OnAsrReceived(string asr)
     {
-        if (response == null) { return; }
-        // As reaponses arrive from Web API, print any dialog to the chat window
-        // responses will also contain speech recognition results
-        if (response.AsrHypothesis != null)
+        var asrLine = "You: " + asr;
+        lines.Add(asrLine);
+        linesAdded = true;
+    }
+
+    void OnDialogReceived(DialogOutput[] dialogs)
+    {
+        foreach (var output in dialogs)
         {
-            var asrLine = "You: " + response.AsrHypothesis;
-            lines.Add(asrLine);
+            var dialog = (DialogOutput)output;
+            var line = dialog.Character + ": " + dialog.Text;
+            lines.Add(line);
             linesAdded = true;
         }
+    }
 
-        if (response.Outputs != null)
+    void OnBehaviorReceived(BehaviorOutput[] behaviors)
+    {
+        foreach (var output in behaviors)
         {
-            var outputs = response.Outputs.Where(o => o.Type.Equals(EOutputType.Dialog));
-            foreach (var output in outputs)
-            {
-                var dialog = (DialogOutput)output;
-                var line = dialog.Character + ": " + dialog.Text;
-                lines.Add(line);
-                linesAdded = true;
-            }
+            Debug.Log(output);
         }
     }
 }
