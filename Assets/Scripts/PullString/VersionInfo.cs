@@ -41,8 +41,7 @@ namespace PullString
             switch (feature)
             {
                 case FeatureName.StreamingAsr:
-                    // streaming audio is not yet implemented
-                    return false;
+                    return true;
                 default:
                     return false;
             }
