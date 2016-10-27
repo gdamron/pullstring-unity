@@ -42,6 +42,7 @@ public class PullStringClient
         };
 
         Conversation.Begin(project, request);
+    }
 
     public void Stop()
     {
