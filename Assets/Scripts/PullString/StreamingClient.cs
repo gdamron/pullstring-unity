@@ -9,6 +9,7 @@ namespace PullString
 {
     internal class StreamingClient : HttpClient
     {
+        public Stream Stream { get { return stream; } }
         private HttpWebRequest request;
         private Stream stream;
 
@@ -19,7 +20,7 @@ namespace PullString
             BaseUrl = baseUrl;
         }
 
-        public void Open(string url, string apiKey, Action<Stream> callback = null)
+        public void Open(string url, string apiKey)
         {
             request = (HttpWebRequest)System.Net.WebRequest.Create(url);
             request.Method = MethodPost;
@@ -32,16 +33,13 @@ namespace PullString
             request.BeginGetRequestStream((IAsyncResult asyncResult) =>
             {
                 var req = (HttpWebRequest)asyncResult.AsyncState;
-                stream = req.EndGetRequestStream(asyncResult);
-                if (callback != null)
-                {
-                    callback(stream);
-                }
+                this.stream = req.EndGetRequestStream(asyncResult);
             }, request);
         }
 
         public void Close(Action<Response> callback = null)
         {
+            stream.Close();
             request.BeginGetResponse((IAsyncResult asyncResult) =>
             {
                 try

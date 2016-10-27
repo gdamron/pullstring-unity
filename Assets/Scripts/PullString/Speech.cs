@@ -27,17 +27,10 @@ namespace PullString
         }
         private List<byte> buffers = new List<byte>();
         private bool isRecording;
-        private Stream stream;
 
         public void Start()
         {
             isRecording = true;
-        }
-
-        public void StartStreaming(Stream stream)
-        {
-            isRecording = true;
-            this.stream = stream;
         }
 
         public void AddAudio(float[] buffer)
@@ -50,9 +43,9 @@ namespace PullString
             buffers.AddRange(bytes);
         }
 
-        public void StreamAudio(float[] buffer)
+        public void StreamAudio(float[] buffer, Stream stream)
         {
-            if (!isRecording || buffer == null || buffer.Length == 0)
+            if (!isRecording || buffer == null || buffer.Length == 0 || stream == null)
             {
                 return;
             }
@@ -66,12 +59,6 @@ namespace PullString
         public void Stop()
         {
             isRecording = false;
-        }
-
-        public void StopStreaming()
-        {
-            isRecording = false;
-            stream.Close();
         }
 
         public void Flush()

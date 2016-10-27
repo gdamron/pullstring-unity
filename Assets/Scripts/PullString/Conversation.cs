@@ -305,9 +305,6 @@ namespace PullString
 
         /// <summary>
         /// Initiate a progressive (chunked) streaming of audio data, where supported.
-        ///
-        /// Note, chunked streaming is not currently implemented, so this will batch up all audio and send it all at
-        /// once when EndAudio() is called.
         /// </summary>
         /// <param name="request">[Optional] A request object with at least apiKey and conversationId set.</param>
         public void StartAudio(Request request = null)
@@ -321,14 +318,12 @@ namespace PullString
 
             var query = getQuery(requestInternal);
             var url = streamingClient.GetUrl(Endpoint, query);
-            streamingClient.Open(url, requestInternal.ApiKey, (stream) =>
-            {
-                speech.StartStreaming(stream);
-            });
+            streamingClient.Open(url, requestInternal.ApiKey);
+            speech.Start();
         }
 
         /// <summary>
-        /// Add a chunk of raw audio samples. You must call StartAudio() first. The format of the audio must be mono
+        /// Stream a chunk of raw audio samples. You must call StartAudio() first. The format of the audio must be mono
         /// linear PCM audio data at a sample rate of 16000 samples per second.
         /// </summary>
         /// <param name="audio"></param>
@@ -336,7 +331,7 @@ namespace PullString
         {
             if (speech != null)
             {
-                speech.StreamAudio(audio);
+                speech.StreamAudio(audio, streamingClient.Stream);
             }
         }
 
@@ -346,11 +341,9 @@ namespace PullString
         /// </summary>
         public void EndAudio()
         {
-            ensureRequestExists();
-
             if (speech != null)
             {
-                speech.StopStreaming();
+                speech.Stop();
                 streamingClient.Close((response) =>
                 {
                     if (OnResponseReceived != null)
