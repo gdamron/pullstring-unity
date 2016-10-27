@@ -1,0 +1,99 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Text;
+using MiniJSON;
+
+namespace PullString
+{
+    internal class StreamingClient : HttpClient
+    {
+        private HttpWebRequest request;
+        private Stream stream;
+
+        private const int DefaultTimeout = 15000;
+
+        public StreamingClient(string baseUrl)
+        {
+            BaseUrl = baseUrl;
+        }
+
+        public void Open(string url, string apiKey, Action<Stream> callback = null)
+        {
+            request = (HttpWebRequest)System.Net.WebRequest.Create(url);
+            request.Method = MethodPost;
+            request.Timeout = DefaultTimeout;
+            request.SendChunked = true;
+            request.Accept = ContentJson;
+            request.ContentType = ContentAudio;
+            request.Headers.Add(HttpRequestHeader.Authorization, HeaderBearer + apiKey);
+
+            request.BeginGetRequestStream((IAsyncResult asyncResult) =>
+            {
+                var req = (HttpWebRequest)asyncResult.AsyncState;
+                stream = req.EndGetRequestStream(asyncResult);
+                if (callback != null)
+                {
+                    callback(stream);
+                }
+            }, request);
+        }
+
+        public void Close(Action<Response> callback = null)
+        {
+            request.BeginGetResponse((IAsyncResult asyncResult) =>
+            {
+                try
+                {
+                    var req = (HttpWebRequest)asyncResult.AsyncState;
+                    var response = req.EndGetResponse(asyncResult);
+                    var rStream = response.GetResponseStream();
+                    var state = new IOState()
+                    {
+                        Stream = rStream,
+                        Buffer = new byte[response.ContentLength],
+                        Response = response
+                    };
+
+                    rStream.BeginRead(state.Buffer, 0, state.Buffer.Length, (IAsyncResult asyncRead) =>
+                    {
+                        var readState = (IOState)asyncRead.AsyncState;
+                        var rawMessage = Encoding.UTF8.GetString(readState.Buffer);
+                        var dict = Json.Deserialize(rawMessage) as Dictionary<string, object>;
+                        var endpoint = response.Headers[Keys.EndpointHeader];
+                        dict.Add(Keys.EndpointHeader, endpoint);
+                        readState.Response.Close();
+
+                        var psResponse = new Response(dict);
+
+                        if (callback != null)
+                        {
+                            callback(psResponse);
+                        }
+                    }, state);
+                }
+                catch (WebException e)
+                {
+                    var webResponse = (HttpWebResponse)e.Response;
+                    var psResponse = new Response()
+                    {
+                        Status = new Status()
+                        {
+                            Success = false,
+                            StatusCode = (long)webResponse.StatusCode,
+                            ErrorMessage = webResponse.StatusDescription
+                        }
+                    };
+                }
+            }, request);
+        }
+
+        private class IOState
+        {
+            public Stream Stream { get; set; }
+            public byte[] Buffer { get; set; }
+            public WebResponse Response { get; set; }
+        }
+    }
+}

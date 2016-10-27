@@ -14,10 +14,8 @@ using MiniJSON;
 
 namespace PullString
 {
-    internal class RestClient
+    internal class RestClient : HttpClient
     {
-        private string BaseUrl { get; set; }
-
         public RestClient(string baseUrl)
         {
             BaseUrl = baseUrl;
@@ -26,7 +24,7 @@ namespace PullString
         // All requests to the PullString are Web API are POST requests
         public WebRequest Post(string endpoint, Dictionary<string, string> parameters, Dictionary<string, string> headers, byte[] body)
         {
-            var url = getUrl(endpoint, parameters);
+            var url = GetUrl(endpoint, parameters);
             var request = new WebRequest(url, headers, body);
 
             return request;
@@ -53,34 +51,13 @@ namespace PullString
             }
 
             var responseText = request.responseText;
-            var endpoint = request.GetResponseHeader("Location");
+            var endpoint = request.GetResponseHeader(Keys.LocationHeader);
 
             var dict = Json.Deserialize(responseText) as Dictionary<string, object>;
             dict.Add(Keys.EndpointHeader, endpoint);
             response = new Response(dict);
 
             return response;
-        }
-
-        // Convert dictionary of parameters into a query string
-        private string getUrl(string endpoint, Dictionary<string, string> parameters)
-        {
-            var url = BaseUrl;
-            if (!url.EndsWith("/") && !endpoint.StartsWith("/"))
-            {
-                url += "/";
-            }
-
-            url += endpoint + "?";
-            var query = new List<string>();
-            foreach (var kv in parameters)
-            {
-                query.Add(kv.Key + "=" + kv.Value);
-            }
-
-            url += string.Join("&", query.ToArray());
-
-            return url;
         }
     }
 }

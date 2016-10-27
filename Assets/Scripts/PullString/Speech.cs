@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 namespace PullString
 {
@@ -26,10 +27,17 @@ namespace PullString
         }
         private List<byte> buffers = new List<byte>();
         private bool isRecording;
+        private Stream stream;
 
         public void Start()
         {
             isRecording = true;
+        }
+
+        public void StartStreaming(Stream stream)
+        {
+            isRecording = true;
+            this.stream = stream;
         }
 
         public void AddAudio(float[] buffer)
@@ -42,9 +50,28 @@ namespace PullString
             buffers.AddRange(bytes);
         }
 
+        public void StreamAudio(float[] buffer)
+        {
+            if (!isRecording || buffer == null || buffer.Length == 0)
+            {
+                return;
+            }
+            var bytes = ConvertSamplesToBytes(buffer);
+            stream.BeginWrite(bytes, 0, bytes.Length, (IAsyncResult asyncResult) => {
+                var str = (Stream)asyncResult.AsyncState;
+                str.EndWrite(asyncResult);
+            }, stream);
+        }
+
         public void Stop()
         {
             isRecording = false;
+        }
+
+        public void StopStreaming()
+        {
+            isRecording = false;
+            stream.Close();
         }
 
         public void Flush()

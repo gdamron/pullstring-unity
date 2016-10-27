@@ -10,9 +10,11 @@
 //
 using UnityEngine;
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Text;
 using MiniJSON;
 
@@ -122,9 +124,11 @@ namespace PullString
             }
         }
 
-        private RestClient client = new RestClient(VersionInfo.ApiBaseUrl);
+        private RestClient restClient = new RestClient(VersionInfo.ApiBaseUrl);
+        private StreamingClient streamingClient = new StreamingClient(VersionInfo.ApiBaseUrl);
         private Speech speech;
         private Request requestInternal;
+        private HttpWebRequest asrStreamingRequest;
 
         /// <summary>
         /// Start a new conversation with the Web API and receive a response via the OnResponseReceived event.
@@ -315,7 +319,12 @@ namespace PullString
                 speech = new Speech();
             }
 
-            speech.Start();
+            var query = getQuery(requestInternal);
+            var url = streamingClient.GetUrl(Endpoint, query);
+            streamingClient.Open(url, requestInternal.ApiKey, (stream) =>
+            {
+                speech.StartStreaming(stream);
+            });
         }
 
         /// <summary>
@@ -327,7 +336,7 @@ namespace PullString
         {
             if (speech != null)
             {
-                speech.AddAudio(audio);
+                speech.StreamAudio(audio);
             }
         }
 
@@ -341,9 +350,16 @@ namespace PullString
 
             if (speech != null)
             {
-                speech.Stop();
-                StartCoroutine(postRequest(speech.Bytes, true));
-                speech.Flush();
+                speech.StopStreaming();
+                streamingClient.Close((response) =>
+                {
+                    if (OnResponseReceived != null)
+                    {
+                        OnResponseReceived(response);
+                    }
+                });
+                // StartCoroutine(postRequest(speech.Bytes, true));
+                // speech.Flush();
             }
         }
 
@@ -352,11 +368,11 @@ namespace PullString
         {
             var headers = getHeaders(requestInternal, isAudio);
             var query = getQuery(requestInternal);
-            var post = client.Post(Endpoint, query, headers, body);
+            var post = restClient.Post(Endpoint, query, headers, body);
 
             yield return post.Send();
 
-            var response = client.ProcessRequest(post);
+            var response = restClient.ProcessRequest(post);
 
             // Conversation ID and Participant ID cam change any time, so keep them current.
             if (response != null)
@@ -446,6 +462,14 @@ namespace PullString
             if (requestInternal == null)
             {
                 throw new Exception("Conversation: valid Request object missing.");
+            }
+        }
+
+        private void OnAsrResponseReceived(Response response)
+        {
+            if (OnResponseReceived != null)
+            {
+                OnResponseReceived(response);
             }
         }
     }
