@@ -128,7 +128,6 @@ namespace PullString
         private StreamingClient streamingClient = new StreamingClient(VersionInfo.ApiBaseUrl);
         private Speech speech;
         private Request requestInternal;
-        private HttpWebRequest asrStreamingRequest;
 
         /// <summary>
         /// Start a new conversation with the Web API and receive a response via the OnResponseReceived event.
