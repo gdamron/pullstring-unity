@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
 using PullString;
-using System.Collections;
 using System.Linq;
 
+/// <summary>
+/// This class encapsulates basic interactions with the PullString SDK. It handles text and speech input and
+/// lightly processes responses.
+/// </summary>
 public class PullStringClient
 {
     public string ApiKey { get; set; }
     public Conversation Conversation { get; set; }
     public AudioSource AudioSource { get; set; }
 
+    // Return ASR reponses, dialog outputs, and behavior outputs through
+    // separate delegates for convenience.
     public delegate void AsrDelegate(string asr);
     public delegate void DialogDelegate(DialogOutput[] output);
     public delegate void BehaviorDelegate(BehaviorOutput[] behavior);
@@ -17,6 +22,7 @@ public class PullStringClient
     public event DialogDelegate OnDialogReceived;
     public event BehaviorDelegate OnBehaviorReceived;
 
+    // Track the position within the Microphone's audio clip.
     private int audioOffset = 0;
 
     // The Web API expects audio as 16-bit mono at 16000 samples per second
@@ -27,15 +33,16 @@ public class PullStringClient
 
     public void Start(string project)
     {
+        // All output from the SDK arrives via OnResponseReceived
         Conversation.OnResponseReceived += OnResponseReceived;
 
-        // since we'll be processing audio in real time, mute the
+        // Since we'll be processing audio in real time, mute the
         // audio source.
         AudioSource.mute = true;
 
         if (string.IsNullOrEmpty(ApiKey)) { return; }
 
-        // prepare request and start conversation
+        // Prepare basic request and start conversation
         var request = new Request()
         {
             ApiKey = ApiKey
@@ -94,8 +101,6 @@ public class PullStringClient
     {
         if (response == null) { return; }
 
-        // Return ASR reponses, dialog outputs, and behavior outputs through
-        // separate delegates for convenience.
         if (!string.IsNullOrEmpty(response.AsrHypothesis) && OnAsrReceived != null)
         {
             OnAsrReceived(response.AsrHypothesis);
@@ -103,6 +108,7 @@ public class PullStringClient
 
         if (response.Outputs != null)
         {
+            // Select DialogOutput objects
             var dialogs = response.Outputs
             .Where(o => o.Type.Equals(EOutputType.Dialog))
             .Select(o => (DialogOutput)o)
@@ -113,6 +119,7 @@ public class PullStringClient
                 OnDialogReceived(dialogs);
             }
 
+            // And then BehaviorOutput objects
             var behaviors = response.Outputs
             .Where(o => o.Type.Equals(EOutputType.Behavior))
             .Select(o => (BehaviorOutput)o)

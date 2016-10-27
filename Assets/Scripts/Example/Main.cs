@@ -2,12 +2,20 @@
 using System.Collections.Generic;
 using PullString;
 
+/// <summary>
+/// A simple example showing basic interactions with the PullString SDK. This component adds a chat client
+/// overlay to the screen. User input and dialog responses are printed to the chat window while any behavior
+/// outputs are simply printed to the console.
+/// </summary>
 [RequireComponent(typeof(AudioSource))]
 public class Main : MonoBehaviour
 {
+    // Api key and project id for the Rock, Paper, Scissors bot. Try replacing these with your own. After
+    // logging in to your account on pullstring.com, they can be found under Account > Web API Keys.
     private const string API_KEY = "9fd2a189-3d57-4c02-8a55-5f0159bff2cf";
     private const string PROJECT = "e50b56df-95b7-4fa1-9061-83a7a9bea372";
 
+    // PullStringClient is shared across examples and contains the details of interacting with the SDK.
     private PullStringClient pullstring;
     private bool recording = false;
 
@@ -41,6 +49,7 @@ public class Main : MonoBehaviour
         pullstring.OnDialogReceived += OnDialogReceived;
         pullstring.OnBehaviorReceived += OnBehaviorReceived;
 
+        // being a conversation immediately
         pullstring.ApiKey = API_KEY;
         pullstring.Start(PROJECT);
     }
@@ -61,6 +70,7 @@ public class Main : MonoBehaviour
 
     void OnGUI()
     {
+        // draw the chat window and input UI
         GUI.color = Color.white;
         GUI.contentColor = Color.black;
 
@@ -129,6 +139,7 @@ public class Main : MonoBehaviour
 
     void OnAsrReceived(string asr)
     {
+        // Print recognized speech to chat window
         var asrLine = "You: " + asr;
         lines.Add(asrLine);
         linesAdded = true;
@@ -136,6 +147,7 @@ public class Main : MonoBehaviour
 
     void OnDialogReceived(DialogOutput[] dialogs)
     {
+        // Print dialog responses to the chat window
         foreach (var output in dialogs)
         {
             var dialog = (DialogOutput)output;
@@ -147,6 +159,7 @@ public class Main : MonoBehaviour
 
     void OnBehaviorReceived(BehaviorOutput[] behaviors)
     {
+        // Print behaviors to the console
         foreach (var output in behaviors)
         {
             Debug.Log(output);
