@@ -9,6 +9,7 @@ namespace PullString {
         public static string HeaderBearer = "Bearer "; // extra space is intentional
 
         protected string BaseUrl { get; set; }
+
         // Convert dictionary of parameters into a query string
         public string GetUrl(string endpoint, Dictionary<string, string> parameters)
         {

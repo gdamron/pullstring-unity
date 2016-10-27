@@ -358,8 +358,6 @@ namespace PullString
                         OnResponseReceived(response);
                     }
                 });
-                // StartCoroutine(postRequest(speech.Bytes, true));
-                // speech.Flush();
             }
         }
 
@@ -462,14 +460,6 @@ namespace PullString
             if (requestInternal == null)
             {
                 throw new Exception("Conversation: valid Request object missing.");
-            }
-        }
-
-        private void OnAsrResponseReceived(Response response)
-        {
-            if (OnResponseReceived != null)
-            {
-                OnResponseReceived(response);
             }
         }
     }
