@@ -1,4 +1,15 @@
-﻿using System;
+﻿//
+// Assets/Scripts/PullString/StreamingClient.cs
+//
+// Encapsulate a streaming HTTP request to the PullString Web API. The primary use case is ASR.
+//
+// Copyright (c) 2016 PullString, Inc.
+//
+// The following source code is licensed under the MIT license.
+// See the LICENSE file, or https://opensource.org/licenses/MIT.
+//
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;

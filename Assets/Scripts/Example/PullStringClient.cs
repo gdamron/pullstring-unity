@@ -1,11 +1,19 @@
-﻿using UnityEngine;
+﻿//
+// Assets/Scripts/Example/PullStringClient.cs
+//
+// Demonstrates basic interactions with the PullString SDK. It handles text and speech input and
+// lightly processes responses.
+//
+// Copyright (c) 2016 PullString, Inc.
+//
+// The following source code is licensed under the MIT license.
+// See the LICENSE file, or https://opensource.org/licenses/MIT.
+//
+
+using UnityEngine;
 using PullString;
 using System.Linq;
 
-/// <summary>
-/// This class encapsulates basic interactions with the PullString SDK. It handles text and speech input and
-/// lightly processes responses.
-/// </summary>
 public class PullStringClient
 {
     public string ApiKey { get; set; }

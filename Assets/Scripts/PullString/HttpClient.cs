@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿//
+// Assets/Scripts/PullString/HttpClient.cs
+//
+// Encapsulate some shared functionality for HTTP requests in a base class
+//
+// Copyright (c) 2016 PullString, Inc.
+//
+// The following source code is licensed under the MIT license.
+// See the LICENSE file, or https://opensource.org/licenses/MIT.
+//
+
+using System.Collections.Generic;
 
 namespace PullString {
     internal class HttpClient

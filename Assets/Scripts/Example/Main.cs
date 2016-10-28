@@ -1,4 +1,15 @@
-﻿using UnityEngine;
+﻿//
+// Assets/Scripts/Example/Main.cs
+//
+// A simple chat client using the PullString SDK
+//
+// Copyright (c) 2016 PullString, Inc.
+//
+// The following source code is licensed under the MIT license.
+// See the LICENSE file, or https://opensource.org/licenses/MIT.
+//
+
+using UnityEngine;
 using System.Collections.Generic;
 using PullString;
 
