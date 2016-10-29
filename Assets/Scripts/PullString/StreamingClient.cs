@@ -62,7 +62,8 @@ namespace PullString
                     {
                         Stream = rStream,
                         Buffer = new byte[response.ContentLength],
-                        Response = response
+                        Response = response,
+                        Request = req
                     };
 
                     rStream.BeginRead(state.Buffer, 0, state.Buffer.Length, (IAsyncResult asyncRead) =>
@@ -72,9 +73,15 @@ namespace PullString
                         var dict = Json.Deserialize(rawMessage) as Dictionary<string, object>;
                         var endpoint = response.Headers[Keys.EndpointHeader];
                         dict.Add(Keys.EndpointHeader, endpoint);
+
+                        readState.Stream.EndRead(asyncRead);
+                        readState.Stream.Close();
                         readState.Response.Close();
 
                         var psResponse = new Response(dict);
+                        // if we don't set the internal reference to null, the resources are
+                        // not freed correctly
+                        stream = null;
 
                         if (callback != null)
                         {
@@ -108,6 +115,7 @@ namespace PullString
             public Stream Stream { get; set; }
             public byte[] Buffer { get; set; }
             public WebResponse Response { get; set; }
+            public HttpWebRequest Request { get; set; }
         }
     }
 }
