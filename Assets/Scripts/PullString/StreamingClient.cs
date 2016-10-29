@@ -62,8 +62,7 @@ namespace PullString
                     {
                         Stream = rStream,
                         Buffer = new byte[response.ContentLength],
-                        Response = response,
-                        Request = req
+                        Response = response
                     };
 
                     rStream.BeginRead(state.Buffer, 0, state.Buffer.Length, (IAsyncResult asyncRead) =>
@@ -115,7 +114,6 @@ namespace PullString
             public Stream Stream { get; set; }
             public byte[] Buffer { get; set; }
             public WebResponse Response { get; set; }
-            public HttpWebRequest Request { get; set; }
         }
     }
 }
