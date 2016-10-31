@@ -123,7 +123,9 @@ namespace PullString
         }
 
         private RestClient restClient = new RestClient(VersionInfo.ApiBaseUrl);
+#if !UNITY_WEBGL
         private StreamingClient streamingClient = new StreamingClient(VersionInfo.ApiBaseUrl);
+#endif
         private Speech speech;
         private Request requestInternal;
 
@@ -313,9 +315,11 @@ namespace PullString
                 speech = new Speech();
             }
 
+#if !UNITY_WEBGL
             var query = getQuery(requestInternal);
             var url = streamingClient.GetUrl(Endpoint, query);
             streamingClient.Open(url, requestInternal.ApiKey);
+#endif
             speech.Start();
         }
 
@@ -328,7 +332,11 @@ namespace PullString
         {
             if (speech != null)
             {
+#if UNITY_WEBGL
+                speech.AddAudio(audio);
+#else
                 speech.StreamAudio(audio, streamingClient.Stream);
+#endif
             }
         }
 
@@ -341,6 +349,10 @@ namespace PullString
             if (speech != null)
             {
                 speech.Stop();
+#if UNITY_WEBGL
+                StartCoroutine(postRequest(speech.Bytes, true));
+                speech.Flush();
+#else
                 streamingClient.Close((response) =>
                 {
                     if (OnResponseReceived != null)
@@ -348,6 +360,7 @@ namespace PullString
                         OnResponseReceived(response);
                     }
                 });
+#endif
             }
         }
 

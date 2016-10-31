@@ -9,6 +9,8 @@
 // See the LICENSE file, or https://opensource.org/licenses/MIT.
 //
 
+#if !UNITY_WEBGL
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -117,3 +119,5 @@ namespace PullString
         }
     }
 }
+
+#endif

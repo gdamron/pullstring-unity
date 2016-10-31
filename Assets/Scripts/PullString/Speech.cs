@@ -43,6 +43,7 @@ namespace PullString
             buffers.AddRange(bytes);
         }
 
+#if !UNITY_WEBGL
         public void StreamAudio(float[] buffer, Stream stream)
         {
             if (!isRecording || buffer == null || buffer.Length == 0 || stream == null)
@@ -55,6 +56,7 @@ namespace PullString
                 str.EndWrite(asyncResult);
             }, stream);
         }
+#endif
 
         public void Stop()
         {
