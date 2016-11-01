@@ -14,7 +14,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using MiniJSON;
 
@@ -31,6 +34,7 @@ namespace PullString
         public StreamingClient(string baseUrl)
         {
             BaseUrl = baseUrl;
+            ServicePointManager.ServerCertificateValidationCallback = CertValidationCallback;
         }
 
         public void Open(string url, string apiKey)
@@ -52,6 +56,8 @@ namespace PullString
 
         public void Close(Action<Response> callback = null)
         {
+            if (stream == null) { return; }
+
             stream.Close();
             request.BeginGetResponse((IAsyncResult asyncResult) =>
             {
@@ -109,6 +115,29 @@ namespace PullString
                     }
                 }
             }, request);
+        }
+
+        bool CertValidationCallback(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors != SslPolicyErrors.None)
+            {
+                // filter out case where revocation list is unreachable
+                var chainStatus = chain.ChainStatus.Where(s => s.Status != X509ChainStatusFlags.RevocationStatusUnknown);
+                if (chainStatus.Count() > 0)
+                {
+                    // otherwise try to validate the cert
+                    chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+                    chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+                    chain.ChainPolicy.UrlRetrievalTimeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
+                    if (!chain.Build((X509Certificate2)cert))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private class IOState
