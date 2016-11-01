@@ -350,6 +350,7 @@ namespace PullString
             {
                 speech.Stop();
 #if UNITY_WEBGL
+                ensureRequestExists();
                 StartCoroutine(postRequest(speech.Bytes, true));
                 speech.Flush();
 #else
