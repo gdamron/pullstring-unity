@@ -39,7 +39,7 @@ public class PullStringClient
     // itself if time runs out.
     private const int CLIP_DUR = 5;
 
-    public void Start(string project)
+    public void Start(string project, string buildType = EBuildType.Production)
     {
         // All output from the SDK arrives via OnResponseReceived
         Conversation.OnResponseReceived += OnResponseReceived;
@@ -53,7 +53,8 @@ public class PullStringClient
         // Prepare basic request and start conversation
         var request = new Request()
         {
-            ApiKey = ApiKey
+            ApiKey = ApiKey,
+            BuildType = buildType
         };
 
         Conversation.Begin(project, request);
