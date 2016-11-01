@@ -25,9 +25,8 @@ namespace PullString
 {
     internal class StreamingClient : HttpClient
     {
-        public Stream Stream { get { return stream; } }
+        public Stream Stream { get; private set; }
         private HttpWebRequest request;
-        private Stream stream;
 
         private const int DefaultTimeout = 15000;
 
@@ -50,15 +49,15 @@ namespace PullString
             request.BeginGetRequestStream((IAsyncResult asyncResult) =>
             {
                 var req = (HttpWebRequest)asyncResult.AsyncState;
-                this.stream = req.EndGetRequestStream(asyncResult);
+                this.Stream = req.EndGetRequestStream(asyncResult);
             }, request);
         }
 
         public void Close(Action<Response> callback = null)
         {
-            if (stream == null) { return; }
+            if (Stream == null) { return; }
 
-            stream.Close();
+            Stream.Close();
             request.BeginGetResponse((IAsyncResult asyncResult) =>
             {
                 try
@@ -88,7 +87,7 @@ namespace PullString
                         var psResponse = new Response(dict);
                         // if we don't set the internal reference to null, the resources are
                         // not freed correctly
-                        stream = null;
+                        Stream = null;
 
                         if (callback != null)
                         {
