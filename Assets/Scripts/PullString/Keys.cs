@@ -23,7 +23,7 @@ namespace PullString
         public const string VideoFile = "video_file";
         public const string Duration = "duration";
         public const string Character = "character";
-        public const string UserData = "UserData";
+        public const string UserData = "user_data";
         public const string Phonemes = "phonemes";
         public const string Behavior = "behavior";
         public const string Parameters = "parameters";
