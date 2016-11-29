@@ -162,14 +162,12 @@ public void HelloWorld()
     * [.SendEvent(event, parameters, [request])](#conversation+SendEvent)
     * [.StartAudio([request])](#conversation+StartAudio)
     * [.AddAudio(buffer)](#conversation+AddAudio)
-    * [.StopAudio()](#conversation+StopAudio)
+    * [.EndAudio()](#conversation+EndAudio)
     * [.SendAudio(audio, format, [request])](#conversation+SendAudio)
     * [.GoTo(responseId, [request])](#conversation+GoTo)
     * [.CheckForTimedResponse([request])](#conversation+CheckForTimedResponse)
     * [.GetEntities(entities, [request])](#conversation+GetEntities)
     * [.SetEntities(entities, [request])](#conversation+SetEntities)
-    * [.GetConversationId()](#conversation+GetConversationId) ⇒ `string`
-    * [.GetParticipantId()](#conversation+GetParticipantId) ⇒ `string`
 
 ### Properties
 
