@@ -155,21 +155,21 @@ public void HelloWorld()
 | [`ResponseDelegate`](#conversation+ResponseDelegate) | `delegate` | The signature for a function that receives reseponse from the PullString Web API.
 | [`OnResponseReceived`](#conversation+OnResponseReceived) | `ResponseDelegate` | The event for receiving responses from the PullString Web API.
 
-* [Conversation](#Conversation)
+* [Conversation](#conversation)
     * [.Begin(projectName, request)](#conversation+Begin)
-    * [.SendText(text, [request])](#Conversation+SendText)
-    * [.SendActivity(activity, [request])](#Conversation+SendActivity)
-    * [.SendEvent(event, parameters, [request])](#Conversation+SendEvent)
-    * [.StartAudio([request])](#Conversation+StartAudio)
-    * [.AddAudio(buffer)](#Conversation+AddAudio)
-    * [.StopAudio()](#Conversation+StopAudio)
-    * [.SendAudio(audio, format, [request])](#Conversation+SendAudio)
-    * [.GoTo(responseId, [request])](#Conversation+GoTo)
-    * [.CheckForTimedResponse([request])](#Conversation+CheckForTimedResponse)
-    * [.GetEntities(entities, [request])](#Conversation+GetEntities)
-    * [.SetEntities(entities, [request])](#Conversation+SetEntities)
-    * [.GetConversationId()](#Conversation+GetConversationId) ⇒ `string`
-    * [.GetParticipantId()](#Conversation+GetParticipantId) ⇒ `string`
+    * [.SendText(text, [request])](#conversation+SendText)
+    * [.SendActivity(activity, [request])](#conversation+SendActivity)
+    * [.SendEvent(event, parameters, [request])](#conversation+SendEvent)
+    * [.StartAudio([request])](#conversation+StartAudio)
+    * [.AddAudio(buffer)](#conversation+AddAudio)
+    * [.StopAudio()](#conversation+StopAudio)
+    * [.SendAudio(audio, format, [request])](#conversation+SendAudio)
+    * [.GoTo(responseId, [request])](#conversation+GoTo)
+    * [.CheckForTimedResponse([request])](#conversation+CheckForTimedResponse)
+    * [.GetEntities(entities, [request])](#conversation+GetEntities)
+    * [.SetEntities(entities, [request])](#conversation+SetEntities)
+    * [.GetConversationId()](#conversation+GetConversationId) ⇒ `string`
+    * [.GetParticipantId()](#conversation+GetParticipantId) ⇒ `string`
 
 ### Properties
 
