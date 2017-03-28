@@ -417,6 +417,16 @@ namespace PullString
                 parameters.Add("account", request.AccountId);
             }
 
+            // only add restart_if_modified and if_modified if non-default value is set.
+            if (!request.RestartIfModified)
+            {
+                parameters.Add("restart_if_modified", "false");
+            }
+            else if (!string.IsNullOrEmpty(request.IfModifiedAction) && !request.IfModifiedAction.Equals(EIfModifiedAction.Nothing))
+            {
+                parameters.Add("if_modified", request.IfModifiedAction);
+            }
+
             return parameters;
         }
 
@@ -432,12 +442,6 @@ namespace PullString
             if (!string.IsNullOrEmpty(ParticipantId))
             {
                 body.Add("participant", ParticipantId);
-            }
-
-            // only add restart_if_modified if non-default value is set.
-            if (!request.RestartIfModified)
-            {
-                body.Add("restart_if_modified", false);
             }
 
             if (parameters != null)
