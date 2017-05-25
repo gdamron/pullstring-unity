@@ -13,6 +13,7 @@
 using UnityEngine;
 using PullString;
 using System.Linq;
+using System.Timers;
 
 public class PullStringClient
 {
@@ -33,6 +34,10 @@ public class PullStringClient
     // Track the position within the Microphone's audio clip.
     private int audioOffset = 0;
 
+    // Keep track of TimedResponseIntervals
+    private Timer noResponseTimer;
+    private bool timerFired = false;
+
     // The Web API expects audio as 16-bit mono at 16000 samples per second
     private const int SAMPLE_RATE = 16000;
     // The duration of the AudioClip used to store audio input. It will loop over
@@ -41,6 +46,9 @@ public class PullStringClient
 
     public void Start(string project, string buildType = EBuildType.Production)
     {
+        noResponseTimer = new Timer { AutoReset = false };
+        noResponseTimer.Elapsed += OnTimerElapsed;
+
         // All output from the SDK arrives via OnResponseReceived
         Conversation.OnResponseReceived += OnResponseReceived;
 
@@ -63,6 +71,7 @@ public class PullStringClient
     public void Stop()
     {
         Conversation.OnResponseReceived -= OnResponseReceived;
+        noResponseTimer.Elapsed -= OnTimerElapsed;
     }
 
     public void Update()
@@ -83,10 +92,18 @@ public class PullStringClient
             Conversation.AddAudio(samples);
             audioOffset = Microphone.GetPosition(null);
         }
+
+        if (timerFired)
+        {
+            timerFired = false;
+            Conversation.CheckForTimedResponse();
+        }
     }
 
     public void ToggleRecording(bool isRecording)
     {
+        noResponseTimer.Stop();
+
         if (isRecording)
         {
             AudioSource.clip = Microphone.Start(null, true, CLIP_DUR, SAMPLE_RATE);
@@ -110,6 +127,8 @@ public class PullStringClient
     {
         if (response == null) { return; }
 
+        var delayTime = 0.0;
+
         if (!string.IsNullOrEmpty(response.AsrHypothesis) && OnAsrReceived != null)
         {
             OnAsrReceived(response.AsrHypothesis);
@@ -128,6 +147,9 @@ public class PullStringClient
                 OnDialogReceived(dialogs);
             }
 
+            delayTime = dialogs.Select(d => d.Duration).Aggregate((sum, next) => sum + next);
+
+
             // And then BehaviorOutput objects
             var behaviors = response.Outputs
             .Where(o => o.Type.Equals(EOutputType.Behavior))
@@ -139,5 +161,18 @@ public class PullStringClient
                 OnBehaviorReceived(behaviors);
             }
         }
+
+        if (response.TimedResponseInterval > 0)
+        {
+            delayTime += response.TimedResponseInterval;
+            noResponseTimer.Stop();
+            noResponseTimer.Interval = delayTime * 1000;
+            noResponseTimer.Start();
+        }
+    }
+
+    void OnTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        timerFired = true;
     }
 }
