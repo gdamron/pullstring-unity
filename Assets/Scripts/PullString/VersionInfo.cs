@@ -16,7 +16,7 @@ namespace PullString
     ///
     /// * StreamingAsr
     /// </summary>
-    public enum FeatureName
+    public enum EFeatureName
     {
         StreamingAsr
     }
@@ -36,11 +36,11 @@ namespace PullString
         /// </summary>
         /// <param name="feature">a FeatureName value</param>
         /// <returns>true if the feature is supported.</returns>
-        public static bool HasFeature(FeatureName feature)
+        public static bool HasFeature(EFeatureName feature)
         {
             switch (feature)
             {
-                case FeatureName.StreamingAsr:
+                case EFeatureName.StreamingAsr:
                     return true;
                 default:
                     return false;

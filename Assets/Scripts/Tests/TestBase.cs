@@ -1,22 +1,37 @@
-﻿#if UNIT_TEST
-
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.TestTools;
 using PullString;
 
 namespace PullStringTests
 {
-    public class TestBase : MonoBehaviour
+    public class TestBase : MonoBehaviour, IMonoBehaviourTest
     {
+		public virtual string Project
+		{
+			get
+			{
+				return TestUtils.PROJECT;
+			}
+		}
+        public virtual string ApiKey 
+        {
+            get 
+            {
+                return TestUtils.API_KEY;
+            }
+        }
+        public bool IsTestFinished { get; set; }
+
         protected Conversation conversation;
-        protected Request request = null;
-        protected int step = 0;
+        protected Request request;
+        protected int step;
 
         public void Awake()
         {
             conversation = gameObject.AddComponent<Conversation>();
             request = new Request()
             {
-                ApiKey = TestUtils.API_KEY
+                ApiKey = ApiKey
             };
 
             conversation.OnResponseReceived += OnResponse;
@@ -24,7 +39,7 @@ namespace PullStringTests
 
         public void Start()
         {
-            conversation.Begin(TestUtils.PROJECT, request);
+            conversation.Begin(Project, request);
         }
 
         void OnResponse(Response response)
@@ -65,5 +80,3 @@ namespace PullStringTests
         protected virtual void Run(Response response, int step) { }
     }
 }
-
-#endif

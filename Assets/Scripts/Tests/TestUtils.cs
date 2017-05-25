@@ -1,11 +1,10 @@
-﻿#if UNIT_TEST
-
-using System.Linq;
+﻿using System.Linq;
 using PullString;
+using UnityEngine.Assertions;
 
 namespace PullStringTests
 {
-    public class TestUtils
+    public static class TestUtils
     {
         public const string API_KEY = "36890c35-8ecd-4ac4-9538-6c75eb1ea6f6";
         public const string PROJECT = "841cbd2c-e1bf-406b-9efe-a9025399aab4";
@@ -16,30 +15,16 @@ namespace PullStringTests
         /// </summary>
         /// <param name="response">PullString Response object</param>
         /// <param name="expected">An array of expected responses</param>
-        /// <param name="finished">[Optional] true if test should pass and exit upon completion</param>
-        public static void TextShouldMatch(Response response, string[] expected, bool finished = false)
+        public static void TextShouldMatch(Response response, string[] expected)
         {
             int i = 0;
             var outputs = response.Outputs.Where(o => o.Type.Equals(EOutputType.Dialog)).ToArray();
 
-            if (expected.Length != outputs.Length)
-            {
-                IntegrationTest.Fail("Number of expected responses is different than acutal responses.");
-                return;
-            }
+            Assert.IsTrue(expected.Length == outputs.Length, "Number of expected responses is different than acutal responses.");
 
             foreach (var text in expected)
             {
-                if (!((DialogOutput)outputs[i++]).Text.Equals(text))
-                {
-                    IntegrationTest.Fail("Text does not match. Expected " + text + ", found");
-                    return;
-                }
-            }
-
-            if (finished)
-            {
-                IntegrationTest.Pass();
+                Assert.IsTrue(((DialogOutput)outputs[i++]).Text.Equals(text), "Text does not match. Expected " + text + ", found");
             }
         }
 
@@ -48,42 +33,49 @@ namespace PullStringTests
         /// finished=true, the current integration test will pass.
         /// </summary>
         /// <param name="response">PullString Response object</param>
-        /// <param name="expected">An Enity representing the expected value</param>
-        /// <param name="finished">[Optional] true if test should pass and exit upon completion</param>
-        public static void EntityShouldMatch(Entity expected, Response response, bool finished = false)
+        /// <param name="tests">An Enity representing the expected value</param>
+        public static void EntityShouldMatch(Entity[] tests, Response response)
         {
             var entities = response.Entities;
-            var type = expected.Type;
-            if (entities == null || entities.Length == 0)
-            {
-                IntegrationTest.Fail("Response contains no entities.");
-                return;
-            }
-            else if (!expected.Name.Equals(entities[0].Name))
-            {
-                IntegrationTest.Fail("Entity's name is not the expected one");
-                return;
-            }
-            else if (!expected.Type.Equals(entities[0].Type))
-            {
-                IntegrationTest.Fail("Entity is not the expected type");
-                return;
-            }
 
-            if (expected.Value != null && entities[0].Value == null ||
-                        expected.Value == null && entities[0].Value != null ||
-                        type.Equals(EEntityType.Counter) && (double)expected.Value != (double)entities[0].Value ||
-                          type.Equals(EEntityType.Flag) && (bool)expected.Value != (bool)entities[0].Value ||
-                        type.Equals(EEntityType.Label) && !((string)expected.Value).Equals((string)entities[0].Value) ||
-                        type.Equals(EEntityType.List) && ((object[])expected.Value).SequenceEqual((object[])entities[0].Value))
-            {
-                IntegrationTest.Fail("Entity is expected type but value does not match");
-                return;
-            }
+            Assert.IsFalse(entities == null || entities.Length == 0, "Response contains no entities.");
+            Assert.IsTrue(entities.Length == tests.Length, "Response contains unexpected number of entities.");
 
-            if (finished)
+            for (int i = 0; i < tests.Length; i++)
             {
-                IntegrationTest.Pass();
+                var expected = tests[i];
+                var entity = entities[i];
+                var type = expected.Type;
+
+                Assert.IsTrue(expected.Name.Equals(entity.Name), "Entity's name is not the expected one");
+                Assert.IsTrue(type.Equals(entity.Type), "Entity is not the expected type");
+                Assert.IsFalse((expected.Value != null && entity.Value == null) || (expected.Value == null && entity.Value != null), "Unexpected null value in Entity");
+                Assert.IsFalse(type.Equals(EEntityType.Counter) && (double)expected.Value != (double)entity.Value ||
+                               type.Equals(EEntityType.Flag) && (bool)expected.Value != (bool)entity.Value ||
+                               type.Equals(EEntityType.Label) && !((string)expected.Value).Equals((string)entity.Value),
+                               "Entity is expected type but value does not match");
+
+                if (type.Equals(EEntityType.List)) {
+                    var testList = (object[])expected.Value;
+                    var entList = (object[])entity.Value;
+
+                    Assert.IsTrue(testList.Length == entList.Length, "Expected Entity List length does not match.");
+
+                    for (int j = 0; j < testList.Length; j++) {
+                        var jType = testList[j].GetType();
+
+                        Assert.IsTrue(jType == entList[j].GetType(), "Entity List value types do not match");
+
+                        var testVal = testList[j];
+                        var entVal = entList[j];
+
+                        Assert.IsFalse(jType == typeof(string) && !((string)testVal).Equals((string)entVal) || 
+                                       jType == typeof(double) && (decimal)testVal != (decimal)entVal ||
+                                       jType == typeof(bool) && (bool)testVal != (bool)entVal,
+                                       "Entity is expected type but value does not match");
+
+                    }
+                }
             }
         }
 
@@ -93,15 +85,10 @@ namespace PullStringTests
         /// </summary>
         /// <param name="response">PullString Response object</param>
         /// <param name="expected">A BehaviorOutput object representing the expected value</param>
-        /// <param name="finished">[Optional] true if test should pass and exit upon completion</param>
-        public static void BehaviorShouldMatch(BehaviorOutput expected, Response response, bool finished = false)
+        public static void BehaviorShouldMatch(BehaviorOutput expected, Response response)
         {
             var behaviors = response.Outputs.Where(o => o.Type.Equals(EOutputType.Behavior)).ToArray();
-            if (behaviors.Length == 0)
-            {
-                IntegrationTest.Fail("No behaviors found in response.");
-                return;
-            }
+            Assert.IsTrue(behaviors.Length > 0, "No behaviors found in response.");
 
             foreach (var b in behaviors)
             {
@@ -112,35 +99,28 @@ namespace PullStringTests
                     {
                         foreach (var kv in expected.Parameters)
                         {
-                            if (!behavior.Parameters.ContainsKey(kv.Key))
-                            {
-                                IntegrationTest.Fail("Behavior paramters not found.");
-                                return;
-                            }
-
+                            Assert.IsTrue(behavior.Parameters.ContainsKey(kv.Key), "Behavior paramters not found.");
                             var param = behavior.Parameters[kv.Key];
 
-                            if (!kv.Value.StringValue.Equals(param.StringValue) ||
-                                kv.Value.BoolValue != param.BoolValue ||
-                                kv.Value.NumericValue != param.NumericValue ||
-                                (kv.Value.ListValue != null && !kv.Value.ListValue.SequenceEqual(param.ListValue)) ||
-                                (kv.Value.DictionaryValue != null && !kv.Value.DictionaryValue.SequenceEqual(param.DictionaryValue)))
-                            {
-                                IntegrationTest.Fail("Behavior paramters did not match.");
-                                return;
-                            }
+                            Assert.IsFalse(!kv.Value.StringValue.Equals(param.StringValue) ||
+                                           kv.Value.BoolValue != param.BoolValue ||
+                                           (decimal)kv.Value.NumericValue != (decimal)param.NumericValue ||
+                                           (kv.Value.ListValue != null && !kv.Value.ListValue.SequenceEqual(param.ListValue)) ||
+                                           (kv.Value.DictionaryValue != null && !kv.Value.DictionaryValue.SequenceEqual(param.DictionaryValue)),
+                                           "Behavior paramters did not match.");
                         }
                     }
-                    // if you made it this far, you passed.
-                    if (finished)
-                    {
-                        IntegrationTest.Pass();
-                    }
+                    // if you made this far, success
                     return;
                 }
             }
 
-            IntegrationTest.Fail("Matching behavior not found.");
+            Assert.IsTrue(false, "Matching behavior not found.");
+        }
+
+        public static void ErrorShouldMatch(string expected, Response response) {
+            Assert.IsFalse(response.Status.Success, "Request was successful but should have failed");
+            Assert.IsTrue(response.Status.ErrorMessage.StartsWith(expected, System.StringComparison.InvariantCulture), "Received an unexpected error message: " + response.Status.ErrorMessage);
         }
 
         /// <summary>
@@ -148,9 +128,7 @@ namespace PullStringTests
         /// </summary>
         public static void ShouldntBeHere()
         {
-            IntegrationTest.Fail("Received and unexpected response");
+            Assert.IsTrue(false, "Received and unexpected response");
         }
     }
 }
-
-#endif

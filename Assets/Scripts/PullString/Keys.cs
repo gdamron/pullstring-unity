@@ -15,7 +15,6 @@ namespace PullString
     {
         public const string Name = "name";
         public const string SecondsSinceStart = "seconds_since_start";
-        public const string Value = "value";
         public const string Guid = "id";
         public const string Text = "text";
         public const string Uri = "uri";

@@ -174,6 +174,40 @@ namespace PullString
             StartCoroutine(postRequest(bytes));
         }
 
+		/// <summary>
+		/// Send and intent as user input to the Web API and receive a response via the OnResponseReceived event.
+		/// </summary>
+		/// <param name="intent">The intent's name</param>
+		/// <param name="request">[Optional] A request object with at least apiKey and conversationId set.</param>
+		public void SendIntent(string intent, Request request = null)
+        {
+            SendIntent(intent, null, request);
+        }
+
+		/// <summary>
+		/// Send and intent as user input to the Web API and receive a response via the OnResponseReceived event.
+		/// </summary>
+		/// <param name="intent">The intent's name.</param>
+		/// <param name="entities">An array specifying the entities to set (with their new values).</param>
+		/// <param name="request">[Optional] A request object with at least apiKey and conversationId set.</param>
+		public void SendIntent(string intent, Entity[] entities, Request request = null)
+        {
+            ensureRequestExists(request);
+
+            var body = getBody(requestInternal, new Dictionary<string, object> {
+                { "intent", intent }
+            });
+
+            if (entities != null && entities.Any()) {
+                var entDict = entities.ToDictionary(e => e.Name, e => e.Value);
+                body.Add("set_entities", entDict);
+            }
+
+            var json = Json.Serialize(body);
+            var bytes = Encoding.UTF8.GetBytes(json);
+            StartCoroutine(postRequest(bytes));
+        }
+
         /// <summary>
         /// Send an activity name or ID to the Web API and receive a response via the OnResponseReceived event.
         /// </summary>
@@ -235,7 +269,7 @@ namespace PullString
         }
 
         /// <summary>
-        /// Call the Web API to see if there is a time-based response to process. You nly need to call this if the
+        /// Call the Web API to see if there is a time-based response to process. You only need to call this if the
         /// previous response returned a value for the timedResponseInterval >= 0. In this case, set a timer for that
         /// value (in seconds) and then call this method. If there is no time-based response, OnResponseReceived will
         /// be passed an empty Response object.
@@ -376,7 +410,7 @@ namespace PullString
 
             var response = restClient.ProcessRequest(post);
 
-            // Conversation ID and Participant ID cam change any time, so keep them current.
+            // Conversation ID and Participant ID can change any time, so keep them current.
             if (response != null)
             {
                 requestInternal.ConversationId = response.ConversationId;

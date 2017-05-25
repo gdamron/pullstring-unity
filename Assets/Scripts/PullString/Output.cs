@@ -83,7 +83,7 @@ namespace PullString
         public string UserData { get; set; }
 
         /// <summary>
-        /// Optional arbitrary string data that was associated with the dialog line within PullString Author.
+        /// Spoken mouth shapes for the line.
         /// </summary>
         public Phoneme[] Phonemes { get; set; }
 

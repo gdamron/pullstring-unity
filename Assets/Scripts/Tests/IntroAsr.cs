@@ -1,43 +1,52 @@
-﻿#if UNIT_TEST
-
+﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.TestTools;
 using System;
 using PullString;
 using PullStringTests;
 
-[IntegrationTest.DynamicTest("ASR Introduction")]
-public class IntroAsr : TestBase
+public class IntroAsr
 {
-    AudioSource source = null;
-    protected override void Run(Response response, int step)
+    [UnityTest]
+    public IEnumerator Test_IntroAsr()
     {
-        if (source == null)
-        {
-            source = GetComponent<AudioSource>();
-        }
+        yield return new MonoBehaviourTest<IntroAsrTest>();
+    }
 
-        switch (step)
+    public class IntroAsrTest : TestBase
+    {
+        AudioSource source;
+        protected override void Run(Response response, int step)
         {
-            case 0:
-                TestUtils.TextShouldMatch(response, new[] { "Hello. What's your name?" });
-                try
-                {
-                    conversation.SendAudio(source.clip);
-                }
-                catch (Exception e)
-                {
-                    IntegrationTest.Fail("Unable to loaad audio: " + e);
-                    return;
-                }
-                break;
-            case 1:
-                TestUtils.TextShouldMatch(response, new[] { "Hello Grant" }, true);
-                break;
-            default:
-                TestUtils.ShouldntBeHere();
-                break;
+            if (source == null)
+            {
+                source = gameObject.AddComponent<AudioSource>();
+                source.clip = Resources.Load<AudioClip>("asrTest");
+            }
+
+            switch (step)
+            {
+                case 0:
+                    TestUtils.TextShouldMatch(response, new[] { "Hello. What's your name?" });
+                    try
+                    {
+                        conversation.SendAudio(source.clip);
+                    }
+                    catch (Exception e)
+                    {
+                        Assert.IsTrue(false, "Unable to load audio: " + e);
+                        return;
+                    }
+                    break;
+                case 1:
+                    TestUtils.TextShouldMatch(response, new[] { "Hello Grant" });
+                    IsTestFinished = true;
+                    break;
+                default:
+                    TestUtils.ShouldntBeHere();
+                    break;
+            }
         }
     }
 }
-
-#endif

@@ -46,7 +46,7 @@ namespace PullString
         public Output[] Outputs { get; private set; }
 
         /// <summary>
-        /// Counters, flags, etc for the converation.
+        /// Counters, flags, etc for the conversation.
         /// </summary>
         public Entity[] Entities { get; private set; }
 
@@ -57,7 +57,7 @@ namespace PullString
 
         /// <summary>
         /// Indicates that there may be another response to process in the specified number of seconds. Set a timer and
-        /// call checkForTimedResponse() from a conversation to retrieve it.
+        /// call CheckForTimedResponse() from a conversation to retrieve it.
         /// </summary>
         public double TimedResponseInterval { get; private set; }
 
@@ -154,13 +154,16 @@ namespace PullString
                     {
                         entityList.Add(new Flag(name, (bool)val));
                     }
-                    else if (type == typeof(double))
+                    else if (type == typeof(double) || type == typeof(Int64))
                     {
-                        entityList.Add(new Counter(name, (double)val));
+                        // MiniJSON parses numbers as double or Int64
+                        entityList.Add(new Counter(name, Convert.ToDouble(val)));
                     }
-                    else if (type == typeof(object[]))
+                    else if (type == typeof(List<object>))
                     {
-                        entityList.Add(new List(name, (object[])val));
+                        // MiniJSON parses arrays as List<object>
+                        var list = (List<object>)val;
+                        entityList.Add(new List(name, list.ToArray()));
                     }
                 }
 
