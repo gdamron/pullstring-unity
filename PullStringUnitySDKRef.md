@@ -27,6 +27,7 @@ The PullString Web API lets you add text or audio conversational capabilities to
 `class `[`Response`](#response) | Presents the output of a request to the [PullString](#namespace_pullstring) Web API.
 `class `[`VersionInfo`](#versioninfo) | Encapsulates version information for [PullString](#namespace_pullstring)'s Web API.
 `class `[`EBuildType`](#ebuildtype) | The asset build type to request for Web API requests.
+`class` [`EIfModifiedAction`](#eIfmodifiedaction) | The Action to take for a conversation when new content is published
 `class `[`EEntityType`](#eentitytype) | Define the list of entity types
 `class `[`EOutputType`](#eoutputtype) | Define the set of outputs that can be returned in a response.
 `class `[`EFeatureName`](#eoutputtype) | Define features to check if they are supported.
@@ -343,7 +344,8 @@ Describe the parameters for a request to the [PullString](#namespace_pullstring)
 | [`Language`](#request+Language) | `string` | ASR language; defaults to 'en-US'.
 | [`Locale`](#request+Locale) | `string` | User locale; defaults to'en-US'.
 | [`TimezoneOffset`](#request+TimezoneOffset) | `int` | A value in seconds representing the offset in UTC. For example, PST would be -28800.
-| [`RestartIfModified`](#request+RestartIfModified) | `bool` | Restart this conversation if a newer version of the project has been published. Default value is true.
+| [`EIfModifiedAction`](#request+IfModifiedAction) | `string` | The Action to take for a conversation when new content is published. Default value is [EIfModifiedAction.Nothing](#eifmodifiedaction+Nothing).
+| [`RestartIfModified`](#request+RestartIfModified) | `bool` | Restart this conversation if a newer version of the project has been published. Default value is true. *[deprecated, use IfModifiedAction instead]*
 | [`AccountId`](#request+AccountId) | `string` |
 
 * [Request](#request)
@@ -386,10 +388,15 @@ User locale; defaults to'en-US'.
 
 A value in seconds representing the offset in UTC. For example, PST would be -28800.
 
+<a name="request+IfModifiedAction"></a>
+#### `public bool IfModifiedAction`
+
+The Action to take for a conversation when new content is published. Default value is [EIfModifiedAction.Nothing](#eifmodifiedaction+Nothing).
+
 <a name="request+RestartIfModified"></a>
 #### `public bool RestartIfModified`
 
-Restart this conversation if a newer version of the project has been published. Default value is true.
+Restart this conversation if a newer version of the project has been published. Default value is true. *[deprecated, use IfModifiedAction instead]*
 
 <a name="request+AccountId"></a>
 #### `public string AccountId`
@@ -426,6 +433,32 @@ Contains raw value "staging"
 #### `public const string Sandbox`
 
 Contains raw value "sandbox"
+
+<a name="eifmodifiedaction"></a>
+# class EIfModifiedAction
+
+The Action to take for a conversation when new content is published.
+
+* [EIfModifiedAction.Restart](#eifmodifiedaction+Restart)
+* [EIfModifiedAction.Update](#eifmodifiedaction+Update)
+* [EIfModifiedAction.Nothing](#eifmodifiedaction+Nothing) (default)
+
+### Properties
+
+<a name="#eifmodifiedaction+Restart"></a>
+#### `public const string Restart`
+
+The conversation will restart when new content is published.
+
+<a name="#eifmodifiedaction+Update"></a>
+#### `public const string Update`
+
+The conversation will restart when new content is published while maintaining current state.
+
+<a name="#eifmodifiedaction+Nothing"></a>
+#### `public const string Nothing`
+
+The conversation will not restart when new content is published.
 
 
 <a name="response"></a>

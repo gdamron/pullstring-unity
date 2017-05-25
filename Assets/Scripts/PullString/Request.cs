@@ -25,6 +25,20 @@ namespace PullString
     }
 
     /// <summary>
+    /// The Action to take for a conversation when new content is published
+    ///
+    /// * EIfModifiedAction.Restart
+    /// * EIfModifiedAction.Update
+    /// * EIfModifiedAction.Nothing (default)
+    /// </summary>
+    public class EIfModifiedAction
+    {
+        public const string Restart = "restart";
+        public const string Update = "update";
+        public const string Nothing = "nothing";
+    }
+
+    /// <summary>
     /// Describe the parameters for a request to the PullString Web API.
     /// </summary>
     public class Request
@@ -66,7 +80,14 @@ namespace PullString
         public int TimezoneOffset { get; set; }
 
         /// <summary>
+        /// The Action to take for a conversation when new content is published
+        /// </summary>
+        /// <returns></returns>
+        public string IfModifiedAction { get; set; }
+
+        /// <summary>
         /// Restart this conversation if a newer version of the project has been published. Default value is true.
+        /// [deprecated, use IfModifiedAction instead]
         /// </summary>
         public bool RestartIfModified { get; set; }
 
@@ -77,6 +98,7 @@ namespace PullString
             Language = "en-US";
             Locale = "en-US";
             RestartIfModified = true;
+            IfModifiedAction = EIfModifiedAction.Nothing;
             BuildType = EBuildType.Production;
         }
 
@@ -114,6 +136,10 @@ namespace PullString
             if (TimezoneOffset > 0)
             {
                 str += "\n\tTimezoneOffset=" + TimezoneOffset + ",";
+            }
+            if (!string.IsNullOrEmpty(IfModifiedAction))
+            {
+                str += "\n\tIfModifiedAction=" + IfModifiedAction;
             }
             str += "\n\tRestartIfModified=" + (RestartIfModified ? "true" : "false") + ",";
             str = str.Trim(',') + "\n}";
