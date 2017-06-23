@@ -1,4 +1,4 @@
-﻿//
+//
 // Assets/Scripts/PullString/StreamingClient.cs
 //
 // Encapsulate a streaming HTTP request to the PullString Web API. The primary use case is ASR.
@@ -53,47 +53,48 @@ namespace PullString
             }, request);
         }
 
-        public void Close(Action<Response> callback = null)
+        public void Close(Action<Response, string> callback = null)
         {
             if (Stream == null) { return; }
 
             Stream.Close();
             request.BeginGetResponse((IAsyncResult asyncResult) =>
             {
+                Stream rStream = null;
                 try
                 {
                     var req = (HttpWebRequest)asyncResult.AsyncState;
                     var response = req.EndGetResponse(asyncResult);
-                    var rStream = response.GetResponseStream();
-                    var state = new IOState()
+                    rStream = response.GetResponseStream();
+
+                    if (rStream != null && response.ContentLength == -1) // probably chunked or something went wrong with the size
                     {
-                        Stream = rStream,
-                        Buffer = new byte[response.ContentLength],
-                        Response = response
-                    };
+                        var reader = new StreamReader(rStream);
+                        var responseText = reader.ReadToEnd();
+                        var psResponse = ReadResponse(response, responseText);
 
-                    rStream.BeginRead(state.Buffer, 0, state.Buffer.Length, (IAsyncResult asyncRead) =>
+                        FinalizeResponseRead(callback, response, rStream, psResponse, responseText);
+                    }
+                    else
                     {
-                        var readState = (IOState)asyncRead.AsyncState;
-                        var rawMessage = Encoding.UTF8.GetString(readState.Buffer);
-                        var dict = Json.Deserialize(rawMessage) as Dictionary<string, object>;
-                        var endpoint = response.Headers[Keys.EndpointHeader];
-                        dict.Add(Keys.EndpointHeader, endpoint);
-
-                        readState.Stream.EndRead(asyncRead);
-                        readState.Stream.Close();
-                        readState.Response.Close();
-
-                        var psResponse = new Response(dict);
-                        // if we don't set the internal reference to null, the resources are
-                        // not freed correctly
-                        Stream = null;
-
-                        if (callback != null)
+                        var state = new IOState()
                         {
-                            callback(psResponse);
-                        }
-                    }, state);
+                            Stream = rStream,
+                            Buffer = new byte[response.ContentLength],
+                            Response = response
+                        };
+
+                        rStream.BeginRead(state.Buffer, 0, state.Buffer.Length, (IAsyncResult asyncRead) =>
+                        {
+                            var readState = (IOState)asyncRead.AsyncState;
+                            var rawMessage = Encoding.UTF8.GetString(readState.Buffer);
+                            var psResponse = ReadResponse(response, rawMessage);
+
+                            readState.Stream.EndRead(asyncRead);
+
+                            FinalizeResponseRead(callback, response, readState.Stream, psResponse, rawMessage);
+                        }, state);
+                    }
                 }
                 catch (WebException e)
                 {
@@ -108,12 +109,37 @@ namespace PullString
                         }
                     };
 
-                    if (callback != null)
-                    {
-                        callback(psResponse);
-                    }
+                    FinalizeResponseRead(callback, webResponse, rStream, psResponse, null);
                 }
             }, request);
+        }
+
+        private Response ReadResponse(WebResponse aWebResponse, string aRawMessage)
+        {
+            var dict = Json.Deserialize(aRawMessage) as Dictionary<string, object>;
+            var endpoint = aWebResponse.Headers[Keys.EndpointHeader];
+            dict.Add(Keys.EndpointHeader, endpoint);
+
+            var psResponse = new Response(dict);
+            return psResponse;
+        }
+
+        private void FinalizeResponseRead(Action<Response, string> aCallback, WebResponse aWebResponse, Stream aResponseStream, Response aPullStringResponse, string aJsonResponse)
+        {
+            if (aResponseStream != null)
+                aResponseStream.Close();
+
+            if (aWebResponse != null)
+                aWebResponse.Close();
+
+            // if we don't set the internal reference to null, the resources are
+            // not freed correctly
+            Stream = null;
+
+            if (aCallback != null)
+            {
+                aCallback(aPullStringResponse, aJsonResponse);
+            }
         }
 
         bool CertValidationCallback(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslPolicyErrors)
