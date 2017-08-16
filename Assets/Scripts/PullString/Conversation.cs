@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // Assets/Scripts/PullString/Conversation.cs
 //
 // Encapsulate a conversation thread for PullString's Web API.
@@ -388,7 +388,11 @@ namespace PullString
                 StartCoroutine(postRequest(speech.Bytes, true));
                 speech.Flush();
 #else
+#if UNITY_2017_1_OR_NEWER
+                streamingClient.Close((response, str) =>
+#else
                 streamingClient.Close((response) =>
+#endif
                 {
                     if (OnResponseReceived != null)
                     {

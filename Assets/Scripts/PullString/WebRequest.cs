@@ -23,7 +23,11 @@ namespace PullString
     // Use UnityWebRequest for newer Unity versions. It moved out of the exprimental namespace in 5.4
     internal class WebRequest
     {
+#if UNITY_2017_1_OR_NEWER
+        public bool isError { get { return request.isNetworkError; } }
+#else
         public bool isError { get { return request.isError; } }
+#endif
         public long responseCode { get { return request.responseCode; } }
         public string error { get { return request.error; } }
         public string responseText { get { return request.downloadHandler.text; } }
