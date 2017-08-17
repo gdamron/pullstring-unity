@@ -388,12 +388,14 @@ namespace PullString
                 StartCoroutine(postRequest(speech.Bytes, true));
                 speech.Flush();
 #else
-#if UNITY_2017_1_OR_NEWER
                 streamingClient.Close((response, str) =>
-#else
-                streamingClient.Close((response) =>
-#endif
                 {
+                    if (response != null)
+                    {
+                        requestInternal.ConversationId = response.ConversationId;
+                        requestInternal.ParticipantId = response.ParticipantId;
+                    }
+
                     if (OnResponseReceived != null)
                     {
                         OnResponseReceived(response);
